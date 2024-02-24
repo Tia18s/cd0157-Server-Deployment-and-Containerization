@@ -3,9 +3,7 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: EKSWSV1
 
-
 Parameters:
-
   EksClusterName:
     Type: String
     Description: The name of the EKS cluster created
@@ -40,7 +38,7 @@ Parameters:
 
   GitHubUser:
     Type: String
-    Default: SudKul
+    Default: Tia18s
     Description: GitHub username or organization
     MinLength: 3
     MaxLength: 100
@@ -61,7 +59,6 @@ Parameters:
     MinLength: 3
     MaxLength: 100
     ConstraintDescription: You must enter a kubectl IAM role
-
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -101,9 +98,7 @@ Metadata:
       EksClusterName:
         default: EKS cluster name
 
-
 Resources:
-
   EcrDockerRepository:
     Type: AWS::ECR::Repository
     DeletionPolicy: Retain
@@ -119,6 +114,7 @@ Resources:
         ZipFile: |
           import json
           import boto3
+          import cfnresponse
           from botocore.vendored import requests
           def handler(event, context):
             response = {
@@ -130,6 +126,7 @@ Resources:
               'LogicalResourceId': event['LogicalResourceId'],
               'Data': {"Message": "Resource creation successful!"},
             }
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, response, context.log_stream_name)
 
             client = boto3.client('iam')
             try:
@@ -161,7 +158,7 @@ Resources:
 
       Handler: index.handler
       Role: !GetAtt CustomResourceLambdaExecutionRole.Arn
-      Runtime: python3.7
+      Runtime: python3.12
       Timeout: 300
 
   CustomResourceLambdaExecutionRole:
@@ -256,25 +253,25 @@ Resources:
                 Effect: Allow
                 Action:
                   - sts:AssumeRole
-              - Resource: '*'
+              - Resource: "*"
                 Effect: Allow
                 Action:
                   - eks:Describe*
-              - Resource: '*'
+              - Resource: "*"
                 Effect: Allow
                 Action:
                   - ssm:GetParameters
-              - Resource: '*'
+              - Resource: "*"
                 Effect: Allow
                 Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-              - Resource: '*'
+              - Resource: "*"
                 Effect: Allow
                 Action:
                   - ecr:GetAuthorizationToken
-              - Resource: '*'
+              - Resource: "*"
                 Effect: Allow
                 Action:
                   - ec2:CreateNetworkInterface
